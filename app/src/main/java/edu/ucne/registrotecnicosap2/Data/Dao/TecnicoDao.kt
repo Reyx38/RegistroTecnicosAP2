@@ -4,13 +4,13 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import edu.ucne.registrotecnicosap2.Data.Entities.tecnicoEntity
+import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface tecnicoDao {
+interface TecnicoDao {
     @Upsert()
-    suspend fun save (tecnico: tecnicoEntity)
+    suspend fun save (tecnico: TecnicoEntity)
     @Query(
         """
         SELECT * 
@@ -19,10 +19,10 @@ interface tecnicoDao {
         LIMIT 1
         """
     )
-    suspend fun find(id: Int): tecnicoEntity?
+    suspend fun find(id: Int): TecnicoEntity?
     @Delete
-    suspend fun delete(tecnico: tecnicoEntity)
+    suspend fun delete(tecnico: TecnicoEntity)
     @Query("SELECT * FROM Tecnicos")
-    fun getAll(): Flow<List<tecnicoEntity>>
+    fun getAll(): Flow<List<TecnicoEntity>>
 
 }
