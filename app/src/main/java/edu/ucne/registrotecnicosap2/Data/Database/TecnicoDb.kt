@@ -5,13 +5,15 @@ import androidx.room.RoomDatabase
 import edu.ucne.registrotecnicosap2.Data.Dao.TecnicoDao
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
+import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
 
 @Database(
     entities = [
         TecnicoEntity::class,
-        PrioridadEntity::class
+        PrioridadEntity::class,
+        TicketEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class TecnicoDb : RoomDatabase() {
