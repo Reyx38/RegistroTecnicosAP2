@@ -24,5 +24,4 @@ interface TecnicoDao {
     suspend fun delete(tecnico: TecnicoEntity)
     @Query("SELECT * FROM Tecnicos")
     fun getAll(): Flow<List<TecnicoEntity>>
-
 }
