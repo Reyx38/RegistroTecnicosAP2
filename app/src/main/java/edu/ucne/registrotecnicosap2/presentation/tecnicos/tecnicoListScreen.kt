@@ -22,7 +22,10 @@ import java.util.*
 fun TecnicoListScreen(
     tecnicoList: List<TecnicoEntity>,
     onEdit: (Int?) -> Unit,
-    onDelete: (TecnicoEntity) -> Unit
+    onDelete: (TecnicoEntity) -> Unit,
+    onNavigateToPrioridades: () -> Unit,
+    onNavigateToTickets: () -> Unit
+
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var tecnicoAEliminar by remember { mutableStateOf<TecnicoEntity?>(null) }
@@ -36,6 +39,21 @@ fun TecnicoListScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { onEdit(0) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
+            }
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = onNavigateToPrioridades) {
+                    Text("Ir a Prioridades")
+                }
+                Button(onClick = onNavigateToTickets) {
+                    Text("Ir a Tickets")
+                }
             }
         }
     ) { padding ->
@@ -135,6 +153,8 @@ fun PreviewList() {
     TecnicoListScreen(
         tecnicoList = tecnico,
         onEdit = {},
-        onDelete = {}
+        onDelete = {},
+        onNavigateToPrioridades = {},
+        onNavigateToTickets = {}
     )
 }
