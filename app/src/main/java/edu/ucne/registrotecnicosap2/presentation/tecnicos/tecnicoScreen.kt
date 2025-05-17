@@ -1,10 +1,12 @@
 package edu.ucne.registrotecnicosap2.presentation.tecnicos
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +20,7 @@ import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.ui.theme.RegistroTecnicosAP2Theme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TecnicoScreen(
     tecnicoId: Int? = null,
@@ -30,7 +33,7 @@ fun TecnicoScreen(
     var editando by remember { mutableStateOf<TecnicoEntity?>(null) }
 
     LaunchedEffect(tecnicoId) {
-        if (tecnicoId != null && viewModel != null) {
+        if (tecnicoId != null && tecnicoId != 0 && viewModel != null) {
             viewModel.getTecnicoById(tecnicoId) { tecnico ->
                 tecnico?.let {
                     nombre = it.nombre
@@ -41,110 +44,161 @@ fun TecnicoScreen(
         }
     }
 
-    Scaffold { innerPadding ->
-        Column(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = if (tecnicoId != null && tecnicoId != 0) "Editar técnico" else "Registrar técnico",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController?.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(8.dp)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth()
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .wrapContentHeight()
+                    .padding(top = 32.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 24.dp)
                     ) {
 
-                        IconButton(
-                            onClick = { navController?.popBackStack() },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Registro de Técnicos",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    label = { Text("Nombre") },
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    label = { Text("Sueldo por hora") },
-                    value = if (sueldo == 0.0f) "" else sueldo.toString(),
-                    onValueChange = { newValue ->
-                        sueldo = newValue.toFloatOrNull() ?: 0.0f
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                mensajeError?.let {
-                    Text(text = it, color = Color.Red)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedButton(onClick = {
-                        nombre = ""
-                        sueldo = 0.0f
-                        mensajeError = null
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Nuevo")
-                        Text("Nuevo")
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            if (nombre.isBlank()) {
-                                mensajeError = "El nombre no puede estar vacío."
-                                return@OutlinedButton
-                            }
-
-                            if (sueldo <= 0.0) {
-                                mensajeError = "El sueldo no puede ser cero o menor."
-                                return@OutlinedButton
-                            }
-
-                            viewModel?.saveTecnico(
-                                TecnicoEntity(
-                                    tecnicoId = editando?.tecnicoId,
-                                    nombre = nombre,
-                                    sueldoHora = sueldo
-                                )
-                            )
-
-                            navController?.navigateUp()
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Guardar"
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (tecnicoId != null && tecnicoId != 0) "Editar técnico" else "Nuevo técnico",
+                            style = MaterialTheme.typography.headlineSmall
                         )
-                        Text(text = "Guardar")
+                    }
+
+                    OutlinedTextField(
+                        label = { Text("Nombre del técnico") },
+                        value = nombre,
+                        onValueChange = { nombre = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        singleLine = true,
+                        isError = nombre.isBlank() && mensajeError != null
+                    )
+
+                    OutlinedTextField(
+                        label = { Text("Sueldo por hora (RD$)") },
+                        value = if (sueldo == 0.0f && editando == null) "" else sueldo.toString(),
+                        onValueChange = { newValue ->
+                            sueldo = newValue.toFloatOrNull() ?: 0.0f
+                            if (mensajeError?.contains("sueldo") == true) {
+                                mensajeError = null
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        isError = (sueldo <= 0) && mensajeError != null
+                    )
+
+                    // Mensaje de error
+                    AnimatedVisibility(visible = mensajeError != null) {
+                        Text(
+                            text = mensajeError ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Botones
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                    ) {
+                        Button(
+                            onClick = {
+                                nombre = ""
+                                sueldo = 0.0f
+                                mensajeError = null
+                                editando = null
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Nuevo",
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Limpiar")
+                        }
+
+                        Button(
+                            onClick = {
+                                if (nombre.isBlank()) {
+                                    mensajeError = "El nombre no puede estar vacío."
+                                    return@Button
+                                }
+
+                                if (sueldo <= 0.0f) {
+                                    mensajeError = "El sueldo debe ser mayor que cero."
+                                    return@Button
+                                }
+
+                                // Guardar
+                                viewModel?.saveTecnico(
+                                    TecnicoEntity(
+                                        tecnicoId = editando?.tecnicoId,
+                                        nombre = nombre,
+                                        sueldoHora = sueldo
+                                    )
+                                )
+
+                                navController?.navigateUp()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Guardar",
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Guardar")
+                        }
                     }
                 }
             }
@@ -153,10 +207,10 @@ fun TecnicoScreen(
 }
 
 
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewTecnicoScreen() {
-    RegistroTecnicosAP2Theme {
         TecnicoScreen()
-    }
+
 }
