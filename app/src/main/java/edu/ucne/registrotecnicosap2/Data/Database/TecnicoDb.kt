@@ -16,7 +16,7 @@ import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
         PrioridadEntity::class,
         TicketEntity::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
