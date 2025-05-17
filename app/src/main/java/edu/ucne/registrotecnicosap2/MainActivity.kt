@@ -13,9 +13,11 @@ import androidx.room.Room
 import edu.ucne.registrotecnicosap2.Data.Database.TecnicoDb
 import edu.ucne.registrotecnicosap2.Data.repository.PrioridadRepository
 import edu.ucne.registrotecnicosap2.Data.repository.TecnicoRepository
+import edu.ucne.registrotecnicosap2.Data.repository.TicketRepository
 import edu.ucne.registrotecnicosap2.presentation.Prioridades.PrioridadViewModel
 import edu.ucne.registrotecnicosap2.presentation.navigation.TecnicoNavHost
 import edu.ucne.registrotecnicosap2.presentation.tecnicos.TecnicosViewModel
+import edu.ucne.registrotecnicosap2.presentation.ticket.TicketViewModel
 import edu.ucne.registrotecnicosap2.ui.theme.RegistroTecnicosAP2Theme
 
 class MainActivity : ComponentActivity() {
@@ -24,6 +26,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var tecnicosViewModel: TecnicosViewModel
     private lateinit var prioridadRepository: PrioridadRepository
     private lateinit var prioridadViewModel: PrioridadViewModel
+    private lateinit var ticketRepository: TicketRepository
+    private lateinit var ticketViewModel: TicketViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +43,8 @@ class MainActivity : ComponentActivity() {
         tecnicosViewModel = TecnicosViewModel(tecnicosRepository)
         prioridadRepository = PrioridadRepository(tecnicoDb.prioridadDao())
         prioridadViewModel = PrioridadViewModel(prioridadRepository)
+        ticketRepository = TicketRepository(tecnicoDb.ticketDao())
+        ticketViewModel = TicketViewModel(ticketRepository)
 
         setContent {
             val lifecycleOwner = LocalLifecycleOwner.current
@@ -54,6 +60,13 @@ class MainActivity : ComponentActivity() {
                     lifecycleOwner = lifecycleOwner,
                     minActiveState = Lifecycle.State.STARTED
                 )
+            val ticketList by tecnicoDb.ticketDao().getAll()
+                .collectAsStateWithLifecycle(
+                    initialValue = emptyList(),
+                    lifecycleOwner = lifecycleOwner,
+                    minActiveState = Lifecycle.State.STARTED
+                )
+
 
             RegistroTecnicosAP2Theme {
                 val nav = rememberNavController()
@@ -61,8 +74,10 @@ class MainActivity : ComponentActivity() {
                     nav,
                     tecnicoList,
                     prioridadList,
+                    ticketList,
                     tecnicosViewModel,
                     prioridadViewModel,
+                    ticketViewModel,
                     nav
                 )
             }
