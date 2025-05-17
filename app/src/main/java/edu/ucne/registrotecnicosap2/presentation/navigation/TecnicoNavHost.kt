@@ -8,20 +8,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
+import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
 import edu.ucne.registrotecnicosap2.presentation.Prioridades.PrioridadScreen
 import edu.ucne.registrotecnicosap2.presentation.Prioridades.PrioridadViewModel
 import edu.ucne.registrotecnicosap2.presentation.Prioridades.PrioridadesListScreen
 import edu.ucne.registrotecnicosap2.presentation.tecnicos.TecnicoListScreen
 import edu.ucne.registrotecnicosap2.presentation.tecnicos.TecnicoScreen
 import edu.ucne.registrotecnicosap2.presentation.tecnicos.TecnicosViewModel
+import edu.ucne.registrotecnicosap2.presentation.ticket.TicketListScreen
+import edu.ucne.registrotecnicosap2.presentation.ticket.TicketScreen
+import edu.ucne.registrotecnicosap2.presentation.ticket.TicketViewModel
 
 @Composable
 fun TecnicoNavHost(
     navHostController: NavHostController,
-    tecnicoList: List<TecnicoEntity>,
+    tecnicoList: List<TecnicoEntity?>,
     prioridadesList: List<PrioridadEntity?>,
+    ticketList: List<TicketEntity?>,
     viewModel: TecnicosViewModel,
     PrioridadviewModel: PrioridadViewModel,
+    ticketViewModel: TicketViewModel,
     navcontrol: NavController
 ) {
     NavHost(
@@ -71,7 +77,34 @@ fun TecnicoNavHost(
             PrioridadScreen(prioridadId, navcontrol, PrioridadviewModel)
         }
 
-        composable <Screen.TicketList>{ }
-        composable <Screen.Ticket> { }
+        composable <Screen.TicketList>{
+            TicketListScreen(
+                ticketList = ticketList,
+                tecnicoList = tecnicoList,
+                prioridadList = prioridadesList,
+                onEdit = { ticketId ->
+                    navHostController.navigate(Screen.Ticket(ticketId))
+                },
+                onDelete = { ticket ->
+                    ticketViewModel.deleteTicket(ticket)
+                },
+                onNavigationToTecnico = {
+                    navHostController.navigate(Screen.TecnicoList)
+                },
+                onNavigationToPrioridad ={
+                    navHostController.navigate(Screen.PrioridadList)
+                }
+            )
+        }
+        composable <Screen.Ticket> { backStack ->
+            val ticketId = backStack.toRoute<Screen.Ticket>().ticketId
+            TicketScreen(
+                ticketId = ticketId,
+                tecnicos = tecnicoList,
+                prioridades = prioridadesList,
+                navcontrol,
+                ticketViewModel
+            )
+        }
     }
 }
