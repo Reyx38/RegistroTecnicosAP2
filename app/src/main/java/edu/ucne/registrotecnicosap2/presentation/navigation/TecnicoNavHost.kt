@@ -47,9 +47,10 @@ fun TecnicoNavHost(
                 onNavigateToPrioridades = {
                     navHostController.navigate(Screen.PrioridadList)
                 },
-                onNavigateToTickets ={
+                onNavigateToTickets = {
                     navHostController.navigate(Screen.TicketList)
-                }
+                },
+                navController = navcontrol
             )
         }
 
@@ -65,10 +66,16 @@ fun TecnicoNavHost(
                     navHostController.navigate(Screen.Prioridad(prioridadId))
 
                 },
-                onDelete = { prioridad  ->
+                onDelete = { prioridad ->
                     PrioridadviewModel.deletePrioridad(prioridad = prioridad)
                 },
-                navController = navcontrol
+                navController = navcontrol,
+                onNavigateToTecnicos = {
+                    navHostController.navigate(Screen.TecnicoList)
+                },
+                onNavigateToTickets = {
+                    navHostController.navigate(Screen.TicketList)
+                },
             )
         }
 
@@ -77,7 +84,7 @@ fun TecnicoNavHost(
             PrioridadScreen(prioridadId, navcontrol, PrioridadviewModel)
         }
 
-        composable <Screen.TicketList>{
+        composable<Screen.TicketList> {
             TicketListScreen(
                 ticketList = ticketList,
                 tecnicoList = tecnicoList,
@@ -91,12 +98,12 @@ fun TecnicoNavHost(
                 onNavigationToTecnico = {
                     navHostController.navigate(Screen.TecnicoList)
                 },
-                onNavigationToPrioridad ={
+                onNavigationToPrioridad = {
                     navHostController.navigate(Screen.PrioridadList)
-                }
+                },
             )
         }
-        composable <Screen.Ticket> { backStack ->
+        composable<Screen.Ticket> { backStack ->
             val ticketId = backStack.toRoute<Screen.Ticket>().ticketId
             TicketScreen(
                 ticketId = ticketId,
