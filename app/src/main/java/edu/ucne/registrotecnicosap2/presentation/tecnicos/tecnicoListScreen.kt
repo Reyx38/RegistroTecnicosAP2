@@ -5,18 +5,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import java.text.NumberFormat
 import java.util.*
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TecnicoListScreen(
@@ -24,8 +27,8 @@ fun TecnicoListScreen(
     onEdit: (Int?) -> Unit,
     onDelete: (TecnicoEntity) -> Unit,
     onNavigateToPrioridades: () -> Unit,
-    onNavigateToTickets: () -> Unit
-
+    onNavigateToTickets: () -> Unit,
+    navController: NavController?
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var tecnicoAEliminar by remember { mutableStateOf<TecnicoEntity?>(null) }
@@ -33,7 +36,17 @@ fun TecnicoListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lista de técnicos") }
+                title = {
+                    Text(
+                        text = "Lista de técnicos",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController?.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -46,12 +59,18 @@ fun TecnicoListScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = onNavigateToPrioridades) {
+                Button(
+                    onClick = onNavigateToPrioridades,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
                     Text("Ir a Prioridades")
                 }
-                Button(onClick = onNavigateToTickets) {
+                Button(
+                    onClick = onNavigateToTickets,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
                     Text("Ir a Tickets")
                 }
             }
@@ -61,17 +80,31 @@ fun TecnicoListScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(padding)
+                .padding(12.dp)
         ) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(tecnicoList) { tecnico ->
-                    TecnicoRow(
-                        tecnico = tecnico,
-                        onEdit = { onEdit(tecnico?.tecnicoId) },
-                        onDelete = {
-                            tecnicoAEliminar = tecnico
-                            showDialog = true
-                        }
-                    )
+            Card(
+                modifier = Modifier.fillMaxSize(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(tecnicoList) { tecnico ->
+                        TecnicoRow(
+                            tecnico = tecnico,
+                            onEdit = { onEdit(tecnico?.tecnicoId) },
+                            onDelete = {
+                                tecnicoAEliminar = tecnico
+                                showDialog = true
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }
@@ -106,32 +139,51 @@ private fun TecnicoRow(
     onEdit: (Int?) -> Unit,
     onDelete: (TecnicoEntity?) -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "DO"))
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = "${tecnico?.nombre}")
-            Text(text = "Id: ${tecnico?.tecnicoId}")
-        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(2f)) {
+                Text(text = "ID: ${tecnico?.tecnicoId}", style = MaterialTheme.typography.labelSmall)
+                Text(text = tecnico?.nombre ?: "", style = MaterialTheme.typography.titleMedium)
+                Text(text = formatoMoneda.format(tecnico?.sueldoHora), style = MaterialTheme.typography.bodyMedium)
+            }
 
-        val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "DO"))
-        Text(
-            modifier = Modifier.weight(1f),
-            text = formatoMoneda.format(tecnico?.sueldoHora)
-        )
-
-        IconButton(onClick = { onEdit(tecnico?.tecnicoId) }) {
-            Icon(Icons.Default.Edit, contentDescription = "Editar")
-        }
-
-        IconButton(onClick = { onDelete(tecnico) }) {
-            Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { onEdit(tecnico?.tecnicoId) }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = { onDelete(tecnico) }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         }
     }
-    HorizontalDivider()
 }
 
 @Preview(showSystemUi = true, showBackground = true)
@@ -155,6 +207,7 @@ fun PreviewList() {
         onEdit = {},
         onDelete = {},
         onNavigateToPrioridades = {},
-        onNavigateToTickets = {}
+        onNavigateToTickets = {},
+        navController = null
     )
 }
