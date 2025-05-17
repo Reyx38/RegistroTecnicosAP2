@@ -2,6 +2,7 @@ package edu.ucne.registrotecnicosap2.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class Screen{
     @Serializable
     data object TecnicoList : Screen()
