@@ -20,7 +20,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TecnicoListScreen(
-    tecnicoList: List<TecnicoEntity>,
+    tecnicoList: List<TecnicoEntity?>,
     onEdit: (Int?) -> Unit,
     onDelete: (TecnicoEntity) -> Unit,
     onNavigateToPrioridades: () -> Unit,
@@ -66,7 +66,7 @@ fun TecnicoListScreen(
                 items(tecnicoList) { tecnico ->
                     TecnicoRow(
                         tecnico = tecnico,
-                        onEdit = { onEdit(tecnico.tecnicoId) },
+                        onEdit = { onEdit(tecnico?.tecnicoId) },
                         onDelete = {
                             tecnicoAEliminar = tecnico
                             showDialog = true
@@ -102,9 +102,9 @@ fun TecnicoListScreen(
 
 @Composable
 private fun TecnicoRow(
-    tecnico: TecnicoEntity,
+    tecnico: TecnicoEntity?,
     onEdit: (Int?) -> Unit,
-    onDelete: (TecnicoEntity) -> Unit
+    onDelete: (TecnicoEntity?) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -113,17 +113,17 @@ private fun TecnicoRow(
             .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = tecnico.nombre)
-            Text(text = "Id: ${tecnico.tecnicoId}")
+            Text(text = "${tecnico?.nombre}")
+            Text(text = "Id: ${tecnico?.tecnicoId}")
         }
 
         val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "DO"))
         Text(
             modifier = Modifier.weight(1f),
-            text = formatoMoneda.format(tecnico.sueldoHora)
+            text = formatoMoneda.format(tecnico?.sueldoHora)
         )
 
-        IconButton(onClick = { onEdit(tecnico.tecnicoId) }) {
+        IconButton(onClick = { onEdit(tecnico?.tecnicoId) }) {
             Icon(Icons.Default.Edit, contentDescription = "Editar")
         }
 

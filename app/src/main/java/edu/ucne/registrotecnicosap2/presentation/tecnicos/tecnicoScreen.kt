@@ -60,98 +60,98 @@ fun TecnicoScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (navController != null) {
-                            IconButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            ) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Registro de Técnicos",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        label = { Text("Nombre") },
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    OutlinedTextField(
-                        label = { Text("Sueldo por hora") },
-                        value = if (sueldo == 0.0f) "" else sueldo.toString(),
-                        onValueChange = { newValue ->
-                            sueldo = newValue.toFloatOrNull() ?: 0.0f
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    mensajeError?.let {
-                        Text(text = it, color = Color.Red)
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedButton(onClick = {
-                            nombre = ""
-                            sueldo = 0.0f
-                            mensajeError = null
-                        }) {
-                            Icon(Icons.Default.Add, contentDescription = "Nuevo")
-                            Text("Nuevo")
-                        }
-
-                        OutlinedButton(
-                            onClick = {
-                                if (nombre.isBlank()) {
-                                    mensajeError = "El nombre no puede estar vacío."
-                                    return@OutlinedButton
-                                }
-
-                                if (sueldo <= 0.0) {
-                                    mensajeError = "El sueldo no puede ser cero o menor."
-                                    return@OutlinedButton
-                                }
-
-                                viewModel?.saveTecnico(
-                                    TecnicoEntity(
-                                        tecnicoId = editando?.tecnicoId,
-                                        nombre = nombre,
-                                        sueldoHora = sueldo
-                                    )
-                                )
-
-                                navController?.navigateUp()
-                            },
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                        IconButton(
+                            onClick = { navController?.popBackStack() },
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Guardar"
-                            )
-                            Text(text = "Guardar")
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                         }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Registro de Técnicos",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    label = { Text("Nombre") },
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    label = { Text("Sueldo por hora") },
+                    value = if (sueldo == 0.0f) "" else sueldo.toString(),
+                    onValueChange = { newValue ->
+                        sueldo = newValue.toFloatOrNull() ?: 0.0f
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                mensajeError?.let {
+                    Text(text = it, color = Color.Red)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedButton(onClick = {
+                        nombre = ""
+                        sueldo = 0.0f
+                        mensajeError = null
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Nuevo")
+                        Text("Nuevo")
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            if (nombre.isBlank()) {
+                                mensajeError = "El nombre no puede estar vacío."
+                                return@OutlinedButton
+                            }
+
+                            if (sueldo <= 0.0) {
+                                mensajeError = "El sueldo no puede ser cero o menor."
+                                return@OutlinedButton
+                            }
+
+                            viewModel?.saveTecnico(
+                                TecnicoEntity(
+                                    tecnicoId = editando?.tecnicoId,
+                                    nombre = nombre,
+                                    sueldoHora = sueldo
+                                )
+                            )
+
+                            navController?.navigateUp()
+                        },
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Guardar"
+                        )
+                        Text(text = "Guardar")
                     }
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
