@@ -23,6 +23,8 @@ fun PrioridadesListScreen(
     prioridadesList: List<PrioridadEntity?>,
     onEdit: (Int?) -> Unit,
     onDelete: (PrioridadEntity) -> Unit,
+    onNavigateToTecnicos: () -> Unit,
+    onNavigateToTickets: () -> Unit,
     navController: NavController?
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -31,7 +33,12 @@ fun PrioridadesListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lista de Prioridades") },
+                title = {
+                    Text(
+                        text = "Lista de prioridades",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController?.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -43,36 +50,68 @@ fun PrioridadesListScreen(
             FloatingActionButton(onClick = { onEdit(0) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
             }
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = onNavigateToTecnicos,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Ir a Técnicos")
+                }
+                Button(
+                    onClick = onNavigateToTickets,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Ir a Tickets")
+                }
+            }
         }
-    ) { innerPadding ->
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(innerPadding)
+                .padding(padding)
+                .padding(12.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+            Card(
+                modifier = Modifier.fillMaxSize(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                items(prioridadesList) { prioridad ->
-                    PrioridadRow(
-                        prioridad = prioridad,
-                        onEdit = { onEdit(prioridad?.prioridadId) },
-                        onDelete = {
-                            prioridadByEliminar = prioridad
-                            showDialog = true
-                        }
-                    )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(prioridadesList) { prioridad ->
+                        PrioridadRow(
+                            prioridad = prioridad,
+                            onEdit = { onEdit(prioridad?.prioridadId) },
+                            onDelete = {
+                                prioridadByEliminar = prioridad
+                                showDialog = true
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }
 
+        // Diálogo de confirmación
         if (showDialog && prioridadByEliminar != null) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Confirmar Eliminación") },
-                text = { Text("¿Estás seguro de que deseas eliminar la prioridad ${prioridadByEliminar?.descripcion}?") },
+                title = { Text("Confirmar eliminación") },
+                text = { Text("¿Estás seguro de que deseas eliminar la prioridad \"${prioridadByEliminar?.descripcion}\"?") },
                 confirmButton = {
                     TextButton(onClick = {
                         prioridadByEliminar?.let { onDelete(it) }
@@ -92,38 +131,61 @@ fun PrioridadesListScreen(
 }
 
 @Composable
-fun PrioridadRow(
+private fun PrioridadRow(
     prioridad: PrioridadEntity?,
     onEdit: (Int?) -> Unit,
     onDelete: (PrioridadEntity?) -> Unit
 ) {
-    Column(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp) // ya tenemos horizontal en LazyColumn
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween, // ⬅️ Distribuye elementos
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Text(text = "Id: ${prioridad?.prioridadId}")
-                Text(text = "${prioridad?.descripcion}")
+            Column(modifier = Modifier.weight(2f)) {
+                Text(
+                    text = "ID: ${prioridad?.prioridadId}",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = prioridad?.descripcion ?: "",
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
 
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IconButton(onClick = { onEdit(prioridad?.prioridadId) }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar")
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
                 IconButton(onClick = { onDelete(prioridad) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
-        HorizontalDivider()
     }
 }
+
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -137,6 +199,8 @@ fun PreviewList() {
         prioridadesList = prioridades,
         onEdit = {},
         onDelete = {},
-        navController = null
+        navController = null,
+        onNavigateToTecnicos = {},
+        onNavigateToTickets = {}
     )
 }
