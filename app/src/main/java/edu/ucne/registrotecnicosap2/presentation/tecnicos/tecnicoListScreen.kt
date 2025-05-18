@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
+import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
 import java.text.NumberFormat
 import java.util.*
 
@@ -42,7 +43,7 @@ fun TecnicoListScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController?.popBackStack() }) {
+                    IconButton(onClick = { navController?.navigate(Screen.Home) }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                 }

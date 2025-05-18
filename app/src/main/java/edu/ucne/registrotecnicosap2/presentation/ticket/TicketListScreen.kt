@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
+import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -126,8 +127,12 @@ fun TicketListScreen(
                         .padding(16.dp)
                 ) {
                     items(ticketList) { ticket ->
-                        val tecnicoNombre = tecnicoList.find { it?.tecnicoId == ticket?.tecnicoId }?.nombre ?: "Desconocido"
-                        val prioridadNombre = prioridadList.find { it?.prioridadId == ticket?.prioridadId }?.descripcion ?: "Desconocido"
+                        val tecnicoNombre =
+                            tecnicoList.find { it?.tecnicoId == ticket?.tecnicoId }?.nombre
+                                ?: "Desconocido"
+                        val prioridadNombre =
+                            prioridadList.find { it?.prioridadId == ticket?.prioridadId }?.descripcion
+                                ?: "Desconocido"
 
                         TicketRow(
                             ticket = ticket,
@@ -241,15 +246,16 @@ fun TicketRow(
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Segunda fila: Descripción
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
                     text = "Descripción: ",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    overflow = TextOverflow.Ellipsis
+
                 )
                 Text(
                     text = ticket?.descripcion ?: "",
@@ -262,17 +268,16 @@ fun TicketRow(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tercera fila: Información adicional en una sola línea
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Fecha
+
                 Column {
                     Text(
                         text = "Fecha:",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
@@ -281,11 +286,11 @@ fun TicketRow(
                     )
                 }
 
-                // Técnico
+
                 Column {
                     Text(
                         text = "Técnico:",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
@@ -294,11 +299,10 @@ fun TicketRow(
                     )
                 }
 
-                // Prioridad
                 Column {
                     Text(
                         text = "Prioridad:",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
@@ -311,7 +315,7 @@ fun TicketRow(
                 Column {
                     Text(
                         text = "Cliente:",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
@@ -325,7 +329,6 @@ fun TicketRow(
         }
     }
 }
-
 
 
 @Preview(showBackground = true, showSystemUi = true)

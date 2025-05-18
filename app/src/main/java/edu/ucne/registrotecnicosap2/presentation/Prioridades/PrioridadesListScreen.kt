@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
+import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +41,7 @@ fun PrioridadesListScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController?.popBackStack() }) {
+                    IconButton(onClick = { navController?.navigate(Screen.Home) }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                 }
