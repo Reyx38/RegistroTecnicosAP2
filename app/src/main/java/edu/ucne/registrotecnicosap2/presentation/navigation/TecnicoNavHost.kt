@@ -32,8 +32,14 @@ fun TecnicoNavHost(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.TecnicoList
+        startDestination = Screen.Home // Cambiamos la pantalla inicial a Home
     ) {
+        // Pantalla Home (nueva)
+        composable<Screen.Home> {
+            HomeScreen(
+                navController = navcontrol
+            )
+        }
 
         composable<Screen.TecnicoList> {
             TecnicoListScreen(
@@ -101,6 +107,7 @@ fun TecnicoNavHost(
                 onNavigationToPrioridad = {
                     navHostController.navigate(Screen.PrioridadList)
                 },
+                navcontrol
             )
         }
         composable<Screen.Ticket> { backStack ->
