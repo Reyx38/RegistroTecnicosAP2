@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import dagger.hilt.android.AndroidEntryPoint
 import edu.ucne.registrotecnicosap2.Data.Database.TecnicoDb
 import edu.ucne.registrotecnicosap2.Data.repository.PrioridadRepository
 import edu.ucne.registrotecnicosap2.Data.repository.TecnicoRepository
@@ -20,6 +21,7 @@ import edu.ucne.registrotecnicosap2.presentation.tecnicos.TecnicosViewModel
 import edu.ucne.registrotecnicosap2.presentation.ticket.TicketViewModel
 import edu.ucne.registrotecnicosap2.ui.theme.RegistroTecnicosAP2Theme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var tecnicoDb: TecnicoDb
     private lateinit var tecnicosRepository: TecnicoRepository
@@ -32,13 +34,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        tecnicoDb = Room.databaseBuilder(
-            applicationContext,
-            TecnicoDb::class.java,
-            "Tecnico.db"
-        ).fallbackToDestructiveMigration().build()
-
         tecnicosRepository = TecnicoRepository(tecnicoDb.tecnicoDao())
         tecnicosViewModel = TecnicosViewModel(tecnicosRepository)
         prioridadRepository = PrioridadRepository(tecnicoDb.prioridadDao())
