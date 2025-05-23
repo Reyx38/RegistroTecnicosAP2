@@ -61,10 +61,9 @@ fun TecnicoNavHost(
             PrioridadesListScreen(
                 onEdit = { prioridadId ->
                     navHostController.navigate(Screen.Prioridad(prioridadId))
-
                 },
                 createPrioridad = {
-                    navHostController.navigate(Screen.Tecnico(0))
+                    navHostController.navigate(Screen.Prioridad(0))
                 }
 
             )
@@ -72,7 +71,13 @@ fun TecnicoNavHost(
 
         composable<Screen.Prioridad> { backStack ->
             val prioridadId = backStack.toRoute<Screen.Prioridad>().prioridad
-            PrioridadScreen(prioridadId, navcontrol, PrioridadviewModel)
+            PrioridadScreen(
+                prioridadId,
+                goBack = {
+                    navHostController.navigateUp()
+                }
+            )
+
         }
 
         composable<Screen.TicketList> {

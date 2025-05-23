@@ -25,11 +25,10 @@ class TecnicosViewModel @Inject constructor(
             is TecnicoEvent.TecnicoChange -> onTecnicoChange(event.tecnicoId)
             is TecnicoEvent.NombreChange -> onNombreChange(event.nombre)
             is TecnicoEvent.SueldoHoraChange -> onSueldoHoraChange(event.sueldoHora)
-            TecnicoEvent.Delete -> TODO()
-            TecnicoEvent.New -> TODO()
-            TecnicoEvent.Save -> TODO()
+            TecnicoEvent.Delete -> deleteTecnico()
+            TecnicoEvent.New -> new()
+            TecnicoEvent.Save -> saveTecnico()
         }
-
     }
 
     private fun onSueldoHoraChange(sueldoHora: Float?) {
@@ -68,7 +67,19 @@ class TecnicosViewModel @Inject constructor(
         }
     }
 
-    fun saveTecnico(tecnico: TecnicoEntity) {
+    private fun new() {
+        _uiState.update {
+            it.copy(
+                tecnicoId = null,
+                nombre = "",
+                sueldoHora = 0.00f,
+                nombreErrorMessage = null,
+                sueldoErrorMessage = null
+            )
+        }
+    }
+
+    fun saveTecnico() {
         viewModelScope.launch {
             if (_uiState.value.nombre.isNullOrBlank()) {
                 _uiState.update {
@@ -120,3 +131,4 @@ class TecnicosViewModel @Inject constructor(
     )
 
 }
+

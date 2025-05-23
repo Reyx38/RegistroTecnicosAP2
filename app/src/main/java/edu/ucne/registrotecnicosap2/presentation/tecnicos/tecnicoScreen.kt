@@ -125,7 +125,7 @@ fun TecnicoBodyScreen(
                     // Mensaje de error
                     AnimatedVisibility(visible = uiState.nombreErrorMessage != null) {
                         Text(
-                            text = uiState.nombreErrorMessage  ?: "",
+                            text = uiState.nombreErrorMessage ?: "",
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp)
@@ -136,7 +136,7 @@ fun TecnicoBodyScreen(
 
                     AnimatedVisibility(visible = uiState.sueldoErrorMessage != null) {
                         Text(
-                            text = uiState.sueldoErrorMessage  ?: "",
+                            text = uiState.sueldoErrorMessage ?: "",
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp)
@@ -208,13 +208,12 @@ fun PreviewTecnicoScreenWithErrors() {
         tecnicos = emptyList()
     )
 
-    MaterialTheme {
-        TecnicoBodyScreen(
-            uiState = mockUiState,
-            onEvent = { /* Mock function */ },
-            goBack = { /* Mock function */ },
-        )
-    }
+    TecnicoBodyScreen(
+        uiState = mockUiState,
+        onEvent = { /* Mock function */ },
+        goBack = { /* Mock function */ },
+    )
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -229,12 +228,11 @@ fun PreviewTecnicoScreenFilled() {
         tecnicos = emptyList()
     )
 
-    MaterialTheme {
-        TecnicoBodyScreen(
-            uiState = mockUiState,
-            onEvent = { /* Mock function */ },
-            goBack = { /* Mock function */ },
-        )
-    }
+    TecnicoBodyScreen(
+        uiState = mockUiState,
+        onEvent = { /* Mock function */ },
+        goBack = { /* Mock function */ },
+    )
+
 }
 

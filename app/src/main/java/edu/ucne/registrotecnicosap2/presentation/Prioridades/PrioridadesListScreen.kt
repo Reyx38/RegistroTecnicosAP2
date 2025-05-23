@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -14,19 +13,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
-import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
+
+
+@Composable
+fun PrioridadesListScreen(
+    viewModel: PrioridadViewModel = hiltViewModel(),
+    onEdit: (Int?) -> Unit,
+    createPrioridad: () -> Unit
+){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    PrioridadesListBodyScreen(
+        uiState,
+        createPrioridad,
+        onEdit,
+        onDelete = {viewModel.onEvent(PrioridadEvent.Delete)}
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrioridadesListScreen(
-    prioridadesList: List<PrioridadEntity?>,
+fun PrioridadesListBodyScreen(
+    uiState: PrioridadUiState,
+    createPrioridad: () -> Unit,
     onEdit: (Int?) -> Unit,
     onDelete: (PrioridadEntity) -> Unit,
-    onNavigateToTecnicos: () -> Unit,
-    onNavigateToTickets: () -> Unit,
-    navController: NavController?
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var prioridadByEliminar by remember { mutableStateOf<PrioridadEntity?>(null) }
@@ -40,39 +53,14 @@ fun PrioridadesListScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
-                navigationIcon = {
-                    IconButton(onClick = { navController?.navigate(Screen.Home) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onEdit(0) }) {
+            FloatingActionButton(onClick = { createPrioridad }) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
             }
         },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onNavigateToTecnicos,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Técnicos")
-                }
-                Button(
-                    onClick = onNavigateToTickets,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Tickets")
-                }
-            }
-        }
+
     ) { padding ->
         Column(
             modifier = Modifier
@@ -92,12 +80,12 @@ fun PrioridadesListScreen(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    items(prioridadesList) { prioridad ->
+                    items(uiState.prioridades) {
                         PrioridadRow(
-                            prioridad = prioridad,
-                            onEdit = { onEdit(prioridad?.prioridadId) },
+                            it,
+                            onEdit,
                             onDelete = {
-                                prioridadByEliminar = prioridad
+                                prioridadByEliminar = it
                                 showDialog = true
                             }
                         )
@@ -135,7 +123,7 @@ fun PrioridadesListScreen(
 private fun PrioridadRow(
     prioridad: PrioridadEntity?,
     onEdit: (Int?) -> Unit,
-    onDelete: (PrioridadEntity?) -> Unit
+    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -175,7 +163,7 @@ private fun PrioridadRow(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = { onDelete(prioridad) }) {
+                IconButton(onClick = { onDelete() }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Eliminar",
@@ -191,17 +179,5 @@ private fun PrioridadRow(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun PreviewList() {
-    val prioridades = listOf(
-        PrioridadEntity(prioridadId = 1, descripcion = "Urgente"),
-        PrioridadEntity(prioridadId = 2, descripcion = "Normal")
-    )
 
-    PrioridadesListScreen(
-        prioridadesList = prioridades,
-        onEdit = {},
-        onDelete = {},
-        navController = null,
-        onNavigateToTecnicos = {},
-        onNavigateToTickets = {}
-    )
 }

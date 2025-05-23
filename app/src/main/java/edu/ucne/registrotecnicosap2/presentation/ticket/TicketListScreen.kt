@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -45,7 +44,6 @@ import androidx.navigation.NavController
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
-import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

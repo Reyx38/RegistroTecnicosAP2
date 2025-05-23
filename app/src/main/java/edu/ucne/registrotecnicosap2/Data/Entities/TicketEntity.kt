@@ -25,7 +25,7 @@ import java.util.Date
 data class TicketEntity(
     @PrimaryKey (autoGenerate = true)
     val ticketId: Int? = null,
-    val fecha: Date = Date(),
+    val fecha: Date? = Date(),
     val prioridadId: Int?,
     val cliente: String = "",
     val asunto: String = "",
