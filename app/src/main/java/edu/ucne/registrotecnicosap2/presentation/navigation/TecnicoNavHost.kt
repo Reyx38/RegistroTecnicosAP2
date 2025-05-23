@@ -1,6 +1,8 @@
 package edu.ucne.registrotecnicosap2.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,66 +24,49 @@ import edu.ucne.registrotecnicosap2.presentation.ticket.TicketViewModel
 @Composable
 fun TecnicoNavHost(
     navHostController: NavHostController,
-    tecnicoList: List<TecnicoEntity?>,
-    prioridadesList: List<PrioridadEntity?>,
-    ticketList: List<TicketEntity?>,
-    viewModel: TecnicosViewModel,
-    PrioridadviewModel: PrioridadViewModel,
-    ticketViewModel: TicketViewModel,
-    navcontrol: NavController
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.Home // Cambiamos la pantalla inicial a Home
+        startDestination = Screen.Home
     ) {
-        // Pantalla Home (nueva)
         composable<Screen.Home> {
             HomeScreen(
-                navController = navcontrol
+                navController = navHostController
             )
         }
 
         composable<Screen.TecnicoList> {
             TecnicoListScreen(
-                tecnicoList = tecnicoList,
-                onEdit = { tecnicoId ->
+                createTecnico = {
+                    navHostController.navigate(Screen.Tecnico(0))
+                },
+                onEditTecnico = { tecnicoId ->
                     navHostController.navigate(Screen.Tecnico(tecnicoId))
-                },
-                onDelete = { tecnico ->
-                    viewModel.deleteTecnico(tecnico)
-                },
-                onNavigateToPrioridades = {
-                    navHostController.navigate(Screen.PrioridadList)
-                },
-                onNavigateToTickets = {
-                    navHostController.navigate(Screen.TicketList)
-                },
-                navController = navcontrol
+                }
+
             )
         }
 
         composable<Screen.Tecnico> { backStack ->
             val tecnicoId = backStack.toRoute<Screen.Tecnico>().tecnicoId
-            TecnicoScreen(tecnicoId, navcontrol, viewModel)
+            TecnicoScreen(
+                tecnicoId = tecnicoId,
+                goBack = {
+                    navHostController.navigateUp()
+                }
+            )
         }
 
         composable<Screen.PrioridadList> {
             PrioridadesListScreen(
-                prioridadesList = prioridadesList,
                 onEdit = { prioridadId ->
                     navHostController.navigate(Screen.Prioridad(prioridadId))
 
                 },
-                onDelete = { prioridad ->
-                    PrioridadviewModel.deletePrioridad(prioridad = prioridad)
-                },
-                navController = navcontrol,
-                onNavigateToTecnicos = {
-                    navHostController.navigate(Screen.TecnicoList)
-                },
-                onNavigateToTickets = {
-                    navHostController.navigate(Screen.TicketList)
-                },
+                createPrioridad = {
+                    navHostController.navigate(Screen.Tecnico(0))
+                }
+
             )
         }
 

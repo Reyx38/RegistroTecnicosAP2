@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -14,24 +13,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
-import edu.ucne.registrotecnicosap2.presentation.navigation.Screen
 import java.text.NumberFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun TecnicoListScreen(
-    tecnicoList: List<TecnicoEntity?>,
-    onEdit: (Int?) -> Unit,
-    onDelete: (TecnicoEntity) -> Unit,
-    onNavigateToPrioridades: () -> Unit,
-    onNavigateToTickets: () -> Unit,
-    navController: NavController?
+    viewModel: TecnicosViewModel = hiltViewModel(),
+    createTecnico: () -> Unit,
+    onEditTecnico: (Int?) -> Unit,
+
+    ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    TecnicoListBodyScreen(
+        uiState,
+        createTecnico,
+        onEditTecnico,
+        onDeleteTecnico = { tecnico -> viewModel.onEvent(TecnicoEvent.Delete)
+        }
+
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TecnicoListBodyScreen(
+    uiState: TecnicoUiState,
+    createTecnico: () -> Unit,
+    onEditTecnico: (Int?) -> Unit,
+    onDeleteTecnico: (TecnicoEntity) -> Unit,
+
 ) {
     var showDialog by remember { mutableStateOf(false) }
-    var tecnicoAEliminar by remember { mutableStateOf<TecnicoEntity?>(null) }
+    var tecnicoDelete by remember { mutableStateOf<TecnicoEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -42,40 +60,15 @@ fun TecnicoListScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
-                navigationIcon = {
-                    IconButton(onClick = { navController?.navigate(Screen.Home) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onEdit(0) }) {
+            FloatingActionButton(onClick = createTecnico) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
             }
         },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onNavigateToPrioridades,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Prioridades")
-                }
-                Button(
-                    onClick = onNavigateToTickets,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Tickets")
-                }
-            }
-        }
-    ) { padding ->
+
+        ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,12 +87,12 @@ fun TecnicoListScreen(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    items(tecnicoList) { tecnico ->
+                    items(uiState.tecnicos) {
                         TecnicoRow(
-                            tecnico = tecnico,
-                            onEdit = { onEdit(tecnico?.tecnicoId) },
+                            it,
+                            onEditTecnico,
                             onDelete = {
-                                tecnicoAEliminar = tecnico
+                                tecnicoDelete = it
                                 showDialog = true
                             }
                         )
@@ -110,14 +103,14 @@ fun TecnicoListScreen(
         }
 
         // Diálogo de confirmación
-        if (showDialog && tecnicoAEliminar != null) {
+        if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = { Text("Confirmar eliminación") },
-                text = { Text("¿Estás seguro de que deseas eliminar a ${tecnicoAEliminar?.nombre}?") },
+                text = { Text("¿Estás seguro de que deseas eliminar a $?") },
                 confirmButton = {
                     TextButton(onClick = {
-                        tecnicoAEliminar?.let { onDelete(it) }
+                        tecnicoDelete?.let { onDeleteTecnico(it) }
                         showDialog = false
                     }) {
                         Text("Sí")
@@ -133,11 +126,12 @@ fun TecnicoListScreen(
     }
 }
 
+
 @Composable
 private fun TecnicoRow(
     tecnico: TecnicoEntity?,
     onEdit: (Int?) -> Unit,
-    onDelete: (TecnicoEntity?) -> Unit
+    onDelete: () -> Unit
 ) {
     val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "DO"))
 
@@ -158,9 +152,15 @@ private fun TecnicoRow(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(2f)) {
-                Text(text = "ID: ${tecnico?.tecnicoId}", style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = "ID: ${tecnico?.tecnicoId}",
+                    style = MaterialTheme.typography.labelSmall
+                )
                 Text(text = tecnico?.nombre ?: "", style = MaterialTheme.typography.titleMedium)
-                Text(text = formatoMoneda.format(tecnico?.sueldoHora), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = formatoMoneda.format(tecnico?.sueldoHora),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             Row(
@@ -174,7 +174,7 @@ private fun TecnicoRow(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = { onDelete(tecnico) }) {
+                IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Eliminar",
@@ -201,13 +201,14 @@ fun PreviewList() {
             sueldoHora = 2300f
         )
     )
-
-    TecnicoListScreen(
-        tecnicoList = tecnico,
-        onEdit = {},
-        onDelete = {},
-        onNavigateToPrioridades = {},
-        onNavigateToTickets = {},
-        navController = null
+    val mockUiState = TecnicoUiState(
+        tecnicos = tecnico
     )
+    TecnicoListBodyScreen(
+        uiState = mockUiState,
+        createTecnico = { /* Mock function */ },
+        onEditTecnico = { /* Mock function */ },
+        onDeleteTecnico = { /* Mock function */ }
+    )
+
 }
