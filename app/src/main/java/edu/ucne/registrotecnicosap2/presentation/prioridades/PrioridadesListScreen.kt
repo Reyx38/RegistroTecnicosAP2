@@ -1,4 +1,4 @@
-package edu.ucne.registrotecnicosap2.presentation.Prioridades
+package edu.ucne.registrotecnicosap2.presentation.prioridades
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,7 +56,7 @@ fun PrioridadesListBodyScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { createPrioridad }) {
+            FloatingActionButton(onClick =  createPrioridad ) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
             }
         },

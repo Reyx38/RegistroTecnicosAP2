@@ -1,7 +1,8 @@
-package edu.ucne.registrotecnicosap2.presentation.Prioridades
+package edu.ucne.registrotecnicosap2.presentation.prioridades
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.repository.PrioridadRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+@HiltViewModel
 class PrioridadViewModel @Inject constructor(
     private val prioridadRepository: PrioridadRepository
 ) : ViewModel() {

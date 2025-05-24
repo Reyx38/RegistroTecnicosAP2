@@ -1,4 +1,4 @@
-package edu.ucne.registrotecnicosap2.presentation.Prioridades
+package edu.ucne.registrotecnicosap2.presentation.prioridades
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -64,9 +64,9 @@ fun PrioridadScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrioridadBodyScreen(
-   uiState: PrioridadUiState,
-   onEvent: (PrioridadEvent) -> Unit,
-   goBack: () -> Unit
+    uiState: PrioridadUiState,
+    onEvent: (PrioridadEvent) -> Unit,
+    goBack: () -> Unit
 ) {
     Scaffold(
         topBar = {

@@ -1,4 +1,4 @@
-package edu.ucne.registrotecnicosap2.presentation.Prioridades
+package edu.ucne.registrotecnicosap2.presentation.prioridades
 
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 

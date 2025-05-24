@@ -1,4 +1,4 @@
-package edu.ucne.registrotecnicosap2.presentation.Prioridades
+package edu.ucne.registrotecnicosap2.presentation.prioridades
 
 sealed interface PrioridadEvent {
     data class PrioridadIdChange (val prioridadId : Int? ): PrioridadEvent
