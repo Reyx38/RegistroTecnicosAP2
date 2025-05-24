@@ -4,4 +4,4 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class RegistroTecncicosAP2APP : Application(){}
+class RegistroTecnicosAP2APP : Application(){}
