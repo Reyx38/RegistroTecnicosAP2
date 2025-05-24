@@ -34,7 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,28 +43,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
-import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
+
+@Composable
+fun TicketScreen(
+    viewModel: TicketViewModel = hiltViewModel(),
+    ticketId: Int? = null,
+    goBack: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    TicketBodyScreen(
+        uiState,
+        viewModel::onEvent,
+        goBack
+    )
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketScreen(
-    ticketId: Int? = null,
-    tecnicos: List<TecnicoEntity?>,
-    prioridades: List<PrioridadEntity?>,
-    navController: NavController? = null,
-    viewModel: TicketViewModel?
+fun TicketBodyScreen(
+    uiState: TicketUiState,
+    onEvent: (TicketEvent) -> Unit,
+    goBack: () -> Unit
 ) {
-    var asunto by remember { mutableStateOf("") }
-    var cliente by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    val fechaActual by remember { mutableStateOf(Date()) }
-    var mensajeError by remember { mutableStateOf<String?>(null) }
 
     var tecnicoSeleccionado by remember { mutableStateOf<TecnicoEntity?>(null) }
     var prioridadSeleccionada by remember { mutableStateOf<PrioridadEntity?>(null) }
@@ -73,34 +81,19 @@ fun TicketScreen(
     var expandedPrioridad by remember { mutableStateOf(false) }
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
-    val fechaFormateada = remember(fechaActual) { dateFormat.format(fechaActual) }
-
-    LaunchedEffect(ticketId) {
-        if (ticketId != null) {
-            viewModel?.getTicketById(ticketId) { ticket ->
-                ticket?.let {
-                    asunto = it.asunto
-                    cliente = it.cliente
-                    descripcion = it.descripcion
-                    tecnicoSeleccionado = tecnicos.find { t -> t?.tecnicoId == it.tecnicoId }
-                    prioridadSeleccionada =
-                        prioridades.find { p -> p?.prioridadId == it.prioridadId }
-                }
-            }
-        }
-    }
+    val fechaFormateada = remember(uiState.fecha) { dateFormat.format(uiState.fecha!!) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = if (ticketId != null && ticketId != 0) "Editar ticket" else "Registrar ticket",
+                        text = if (uiState.ticketId != null ) "Editar ticket" else "Registrar ticket",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController?.popBackStack() }) {
+                    IconButton(onClick = { goBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                 }
@@ -136,7 +129,7 @@ fun TicketScreen(
                     ) {
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = if (ticketId != null && ticketId != 0) "Editar ticket" else "Nuevo ticket",
+                            text = if (uiState.ticketId != null) "Editar ticket" else "Nuevo ticket",
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
@@ -159,34 +152,31 @@ fun TicketScreen(
                     )
 
                     OutlinedTextField(
-                        value = asunto,
-                        onValueChange = { asunto = it },
+                        value = uiState.asunto!!,
+                        onValueChange = {onEvent(TicketEvent.asuntoChage(it)) },
                         label = { Text("Asunto") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        isError = asunto.isBlank() && mensajeError != null
                     )
 
                     OutlinedTextField(
-                        value = cliente,
-                        onValueChange = { cliente = it },
+                        value = uiState.cliente!!,
+                        onValueChange = { onEvent(TicketEvent.clienteChage(it)) },
                         label = { Text("Cliente") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        isError = cliente.isBlank() && mensajeError != null
                     )
 
                     OutlinedTextField(
-                        value = descripcion,
-                        onValueChange = { descripcion = it },
+                        value = uiState.descripcion!!,
+                        onValueChange = {onEvent(TicketEvent.descripcionChage(it))},
                         label = { Text("Descripción") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         minLines = 3,
-                        isError = descripcion.isBlank() && mensajeError != null
                     )
 
                     ExposedDropdownMenuBox(
@@ -203,13 +193,12 @@ fun TicketScreen(
                             modifier = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth(),
-                            isError = tecnicoSeleccionado == null && mensajeError != null
                         )
                         ExposedDropdownMenu(
                             expanded = expandedTecnico,
                             onDismissRequest = { expandedTecnico = false }
                         ) {
-                            tecnicos.forEach { tecnico ->
+                            uiState.tecnicos.forEach { tecnico ->
                                 DropdownMenuItem(
                                     text = { Text(text = "${tecnico?.nombre}") },
                                     onClick = {
@@ -235,13 +224,12 @@ fun TicketScreen(
                             modifier = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth(),
-                            isError = prioridadSeleccionada == null && mensajeError != null
                         )
                         ExposedDropdownMenu(
                             expanded = expandedPrioridad,
                             onDismissRequest = { expandedPrioridad = false }
                         ) {
-                            prioridades.forEach { prioridad ->
+                            uiState.prioridades.forEach { prioridad ->
                                 DropdownMenuItem(
                                     text = { Text(text = "${prioridad?.descripcion}") },
                                     onClick = {
@@ -253,9 +241,25 @@ fun TicketScreen(
                         }
                     }
 
-                    AnimatedVisibility(visible = mensajeError != null) {
+                    AnimatedVisibility(visible = uiState.descripcionErrorMensaje != null) {
                         Text(
-                            text = mensajeError ?: "",
+                            text = uiState.descripcionErrorMensaje ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    AnimatedVisibility(visible = uiState.clienteErrorMensaje != null) {
+                        Text(
+                            text = uiState.clienteErrorMensaje ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    AnimatedVisibility(visible = uiState.asuntoErrorMensaje != null) {
+                        Text(
+                            text = uiState.asuntoErrorMensaje ?: "",
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp)
@@ -270,12 +274,7 @@ fun TicketScreen(
                     ) {
                         Button(
                             onClick = {
-                                asunto = ""
-                                cliente = ""
-                                descripcion = ""
-                                tecnicoSeleccionado = null
-                                prioridadSeleccionada = null
-                                mensajeError = null
+                                onEvent(TicketEvent.New)
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -294,40 +293,8 @@ fun TicketScreen(
 
                         Button(
                             onClick = {
-                                when {
-                                    asunto.isBlank() -> {
-                                        mensajeError = "El asunto no puede estar vacío."
-                                        return@Button
-                                    }
-                                    cliente.isBlank() -> {
-                                        mensajeError = "El cliente no puede estar vacío."
-                                        return@Button
-                                    }
-                                    descripcion.isBlank() -> {
-                                        mensajeError = "La descripción no puede estar vacía."
-                                        return@Button
-                                    }
-                                    tecnicoSeleccionado == null -> {
-                                        mensajeError = "Debe seleccionar un técnico."
-                                        return@Button
-                                    }
-                                    prioridadSeleccionada == null -> {
-                                        mensajeError = "Debe seleccionar una prioridad."
-                                        return@Button
-                                    }
-                                }
-
-                                // Guardar
-                                val nuevoTicket = TicketEntity(
-                                    fecha = fechaActual,
-                                    prioridadId = prioridadSeleccionada!!.prioridadId,
-                                    cliente = cliente,
-                                    asunto = asunto,
-                                    descripcion = descripcion,
-                                    tecnicoId = tecnicoSeleccionado!!.tecnicoId
-                                )
-                                viewModel?.saveTicket(nuevoTicket)
-                                navController?.popBackStack()
+                                onEvent(TicketEvent.Save)
+                                goBack()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary
@@ -362,11 +329,5 @@ fun Preview() {
         PrioridadEntity(prioridadId = 2, descripcion = "Media"),
         PrioridadEntity(prioridadId = 3, descripcion = "Baja")
     )
-    TicketScreen(
-        ticketId = null,
-        tecnicos = tecnicosFake,
-        prioridades = prioridadesFake,
-        navController = null,
-        viewModel = null
-    )
+
 }
