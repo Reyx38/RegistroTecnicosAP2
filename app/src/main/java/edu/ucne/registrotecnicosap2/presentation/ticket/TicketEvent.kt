@@ -12,5 +12,5 @@ sealed interface TicketEvent {
     data class tecnicoIdChage(val tecnicoId: Int?) : TicketEvent
     data object Save : TicketEvent
     data object New : TicketEvent
-    data object Deleta : TicketEvent
+    data object Delete : TicketEvent
 }
