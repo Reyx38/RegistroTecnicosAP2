@@ -2,30 +2,63 @@ package edu.ucne.registrotecnicosap2.presentation.ticket
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
+import edu.ucne.registrotecnicosap2.Data.repository.PrioridadRepository
+import edu.ucne.registrotecnicosap2.Data.repository.TecnicoRepository
 import edu.ucne.registrotecnicosap2.Data.repository.TicketRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
-
+@HiltViewModel
 class TicketViewModel @Inject constructor(
-    private val ticketRepository: TicketRepository
+    private val ticketRepository: TicketRepository,
+    private val tecnicoRepository: TecnicoRepository,
+    private val prioridadRepository: PrioridadRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TicketUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
         getTicket()
+        getPrioridades()
+        getTecnicos()
+    }
+
+    private fun getTecnicos() {
+        viewModelScope.launch {
+            tecnicoRepository.getAll().collect { tecnico ->
+                _uiState.update {
+                    it.copy(
+                        tecnicos = tecnico
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getPrioridades() {
+        viewModelScope.launch {
+            prioridadRepository.getAll().collect { prioridades ->
+                _uiState.update {
+                    it.copy(
+                        prioridades = prioridades
+                    )
+                }
+            }
+        }
     }
 
     fun onEvent(event: TicketEvent) {
         when (event) {
-            TicketEvent.Deleta -> deleteTicket()
+            TicketEvent.Delete -> deleteTicket()
             TicketEvent.New -> newTicket()
             TicketEvent.Save -> saveTicket()
             is TicketEvent.asuntoChage -> onAsuntoChange(event.asunto)
