@@ -2,6 +2,7 @@ package edu.ucne.registrotecnicosap2.presentation.tecnicos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.Data.repository.TecnicoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class TecnicosViewModel @Inject constructor(
     private val tecnicoRepository: TecnicoRepository
 ) : ViewModel() {
