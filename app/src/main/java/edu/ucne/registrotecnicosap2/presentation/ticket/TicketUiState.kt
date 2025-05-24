@@ -1,5 +1,7 @@
 package edu.ucne.registrotecnicosap2.presentation.ticket
 
+import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
+import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
 import java.util.Date
 
@@ -14,5 +16,7 @@ data class TicketUiState (
     val descripcion: String? = " ",
     val descripcionErrorMensaje: String? = "",
     val tecnicoId: Int? = null,
-    val tickets: List<TicketEntity?> = emptyList()
+    val tickets: List<TicketEntity?> = emptyList(),
+    val tecnicos: List<TecnicoEntity?> = emptyList(),
+    val prioridades: List<PrioridadEntity?> = emptyList()
 )
