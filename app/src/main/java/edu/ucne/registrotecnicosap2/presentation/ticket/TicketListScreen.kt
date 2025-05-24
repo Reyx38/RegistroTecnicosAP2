@@ -9,15 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,25 +37,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.registrotecnicosap2.Data.Entities.PrioridadEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TecnicoEntity
 import edu.ucne.registrotecnicosap2.Data.Entities.TicketEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.foundation.lazy.items
+
+
+@Composable
+fun TicketListScreen(
+    viewModel: TicketViewModel = hiltViewModel(),
+    onEdit: (Int?) -> Unit,
+    createTicket: () -> Unit
+){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+
+    TicketListBodyScreen(
+        uiState,
+        createTicket,
+        onEdit,
+        onDelete = {tiicket -> viewModel.onEvent(TicketEvent.Delete)}
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketListScreen(
-    ticketList: List<TicketEntity?>,
-    tecnicoList: List<TecnicoEntity?>,
-    prioridadList: List<PrioridadEntity?>,
+fun TicketListBodyScreen(
+    uiState: TicketUiState,
+    createTicket: () -> Unit,
     onEdit: (Int?) -> Unit,
-    onDelete: (TicketEntity) -> Unit,
-    onNavigationToTecnico: () -> Unit,
-    onNavigationToPrioridad: () -> Unit,
-    navController: NavController? = null
+    onDelete: (TicketEntity?) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var ticketByEliminar by remember { mutableStateOf<TicketEntity?>(null) }
@@ -72,39 +85,14 @@ fun TicketListScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
-                navigationIcon = {
-                    IconButton(onClick = { navController?.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onEdit(0) }) {
+            FloatingActionButton(onClick = { createTicket() }) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Nuevo")
             }
         },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = onNavigationToTecnico,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Técnicos")
-                }
-                Button(
-                    onClick = onNavigationToPrioridad,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Ir a Prioridades")
-                }
-            }
-        }
+
     ) { padding ->
         Column(
             modifier = Modifier
@@ -124,19 +112,19 @@ fun TicketListScreen(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    items(ticketList) { ticket ->
+                    items(uiState.tickets) { ticket ->
                         val tecnicoNombre =
-                            tecnicoList.find { it?.tecnicoId == ticket?.tecnicoId }?.nombre
+                            uiState.tecnicos.find { it?.tecnicoId == ticket?.tecnicoId }?.nombre
                                 ?: "Desconocido"
                         val prioridadNombre =
-                            prioridadList.find { it?.prioridadId == ticket?.prioridadId }?.descripcion
+                            uiState.prioridades.find { it?.prioridadId == ticket?.prioridadId }?.descripcion
                                 ?: "Desconocido"
 
                         TicketRow(
                             ticket = ticket,
                             tecnicoNombre = tecnicoNombre,
                             prioridadNombre = prioridadNombre,
-                            onEdit = { onEdit(ticket?.ticketId) },
+                            onEdit,
                             onDelete = {
                                 ticketByEliminar = ticket
                                 showDialog = true
@@ -363,15 +351,7 @@ fun PreviewTicketListScreen() {
         PrioridadEntity(prioridadId = 2, descripcion = "Media")
     )
 
-    TicketListScreen(
-        ticketList = sampleTickets,
-        tecnicoList = sampleTecnicos,
-        prioridadList = samplePrioridades,
-        onEdit = {},
-        onDelete = {},
-        onNavigationToTecnico = {},
-        onNavigationToPrioridad = {}
-    )
+
 }
 
 
